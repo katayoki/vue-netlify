@@ -1,23 +1,53 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterLink, RouterView, useRoute } from 'vue-router'
+import { computed, watch } from 'vue'
 import HelloWorld from './components/HelloWorld.vue'
+
+const route = useRoute()
+
+const isCustomLayoutRoute = computed(() => {
+  // Check the route name OR use the meta field we added in router/index.js
+  return route.name === 'CustomQuestionsLayout' || route.meta.requiresCustomLayout
+})
+
+watch(
+  isCustomLayoutRoute,
+  (isCustom) => {
+    if (isCustom) {
+      // Add the class only on the custom route
+      document.body.classList.add('custom-body')
+    } else {
+      // Remove the class on all other routes
+      document.body.classList.remove('custom-body')
+    }
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+  <template v-if="!isCustomLayoutRoute">
+    <header>
+      <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+      <div class="wrapper">
+        <HelloWorld msg="You did it!" />
 
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
+        <nav>
+          <RouterLink to="/">Home</RouterLink>
+          <RouterLink to="/about">About</RouterLink>
+        </nav>
+      </div>
+    </header>
+
+    <RouterView />
+  </template>
+
+  <template v-else>
+    <div class="question-layout">
+      <RouterView />
     </div>
-  </header>
-
-  <RouterView />
+  </template>
 </template>
 
 <style scoped>
